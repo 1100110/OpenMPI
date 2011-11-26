@@ -1,3 +1,5 @@
+//Thanks to drey_
+
 
 import std.stdio;
 import std.c.stdio;
@@ -11,10 +13,10 @@ int main(string[] args)
     int argc = args.length;
     const char** argv = array(map!toStringz(args)).ptr;
 
-    //char idstr[128];
-    //char buff[128];
     string idstr;
-    string buff;
+    char[1024] buff;
+    buff[] = 0;  // strings are inited with UTF invalid value by default
+    size_t lastBuffPos;  // track last position
 
     int numprocs, rank, namelen, i;
     char processor_name[MPI_MAX_PROCESSOR_NAME];
@@ -30,35 +32,34 @@ int main(string[] args)
     if (rank == 0)
     {
         // This is the rank-0 copy of the process
-        printf("Master Processor %d Reporting!\n", rank);
-        printf("We have %d processors\n", numprocs);
+        writefln("Master Processor %d Reporting!", rank);
+        writefln("We have %d processors", numprocs);
         // Send each process a "Hello ... " string
         for(i = 1; i < numprocs; i++)
         {
-            //Do we have sprintf??
-            //sprintf(buff.ptr, "Hello %d... ", i);
-            buff = "Hello " ~ i.stringof ~ "...\0";
-            writeln(buff);
-            MPI_Send(cast(char*)buff.dup.ptr, buff.length, MPI_CHAR, i, 0, MPI_COMM_WORLD);
+            auto str = format("Hello %s", i);
+            buff[lastBuffPos .. lastBuffPos + str.length] = str[];
+            lastBuffPos += str.length;
+            MPI_Send(buff.ptr, buff.length, MPI_CHAR, i, 0, MPI_COMM_WORLD);
         }
         // Go into a blocking-receive for each servant process
         for(i = 1; i < numprocs; i++)
         {
-            MPI_Recv(cast(char*)buff.dup.ptr, buff.length, MPI_CHAR, i, 0, MPI_COMM_WORLD, &stat);
-            writeln(buff);
+            MPI_Recv(buff.ptr, buff.length, MPI_CHAR, i, 0, MPI_COMM_WORLD, &stat);
+            writefln("%s: %s\n", rank, buff);
         }
     }
     else
     {
         // Go into a blocking-receive waiting
-        MPI_Recv(cast(char*)buff.ptr, buff.length, MPI_CHAR, 0, 0, MPI_COMM_WORLD, &stat);
+        MPI_Recv(buff.ptr, buff.length, MPI_CHAR, 0, 0, MPI_COMM_WORLD, &stat);
         // Append our identity onto the received string
-        idstr ~= "  Processor " ~ rank.stringof ~ " Reporting!\0";
-        buff = buff[0..$-1];
-        buff ~= idstr;
+        auto str = format("Processor %d reporting for duty\n", rank);
+        buff[lastBuffPos .. lastBuffPos + str.length] = str[];
+        lastBuffPos += str.length;
 
         // Send the string back to the rank-0 process
-        MPI_Send(cast(char*)buff.dup.ptr, buff.length, MPI_CHAR, 0, 0, MPI_COMM_WORLD);
+        MPI_Send(buff.ptr, buff.length, MPI_CHAR, 0, 0, MPI_COMM_WORLD);
    }
 
    return MPI_Finalize();
