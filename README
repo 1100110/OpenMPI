@@ -1,0 +1,31 @@
+Ok this is proving to be a very difficult proposition...
+
+MPI uses it's own wrappers for the compilers, so I might want to implement
+something to that effect.  It'll be difficult since mpicc is generated at
+compile time.  It is configured to the specific install.
+
+mpicc -showme:compile
+-I/usr/lib/openmpi/include -I/usr/lib/openmpi/include/openmpi -pthread
+
+mpicc -showme:link
+-pthread -L/usr/lib/openmpi/lib -lmpi -lopen-rte -lopen-pal -ldl
+-Wl,--export-dynamic -lnsl -lutil -lm -ldl
+
+See the TODO file for current tasks.
+
+
+NOV 25, 1:03 it compiles!!  hahah!
+Now for the hard part...  debugging and linking...
+
+
+Things that I have learned during this project.
+1: I am an idiot.  As the folks on #d will attest.
+2: .ptr is the shit.
+3: profit.
+
+
+When you are passing objects to other threads, MPI accepts void*, but actually
+checks the type. So passing D strings is a no-go.  at least from what I understand.
+
+Also MPI does type checking behind the scenes...  If you try to do something like
+dynamic arrays, you will be bitch-slapped.
