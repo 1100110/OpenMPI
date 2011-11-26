@@ -33,7 +33,6 @@ int main(string[] args)
     int         i;
     int         j;
     int         length;
-    //I don't know what this char[] is doing, but it ain't workin...
     char        name[MPI_MAX_PROCESSOR_NAME+1];
 
     MPI_Init(&argc, &argv);
@@ -54,7 +53,7 @@ int main(string[] args)
             /* rank i sends to and receives from each higher rank */
             for(j=i+1; j<np; j++) {
                 if (verbose)
-                    printf("checking connection between rank %i and rank %-4i\n", i, j);
+                    printf("checking connection between rank %i on %s and rank %-4i\n", i, name.ptr, j);
                 MPI_Send(&rank, 1, MPI_INT, j, rank, MPI_COMM_WORLD);
                 MPI_Recv(&peer, 1, MPI_INT, j, j, MPI_COMM_WORLD, &status);
             }
