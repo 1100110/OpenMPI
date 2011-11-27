@@ -3,7 +3,8 @@ DFLAGS=-g -debug
 IMPORTS=-I../
 LIBS=-L-lpthread -L-lmpi -L-lopen-rte -L-lopen-pal -L-ldl -L-E -L-lnsl -L-lutil -L-lm -L-ldl
 SOURCES=hello_d ring_d connectivity_d master_slave master_slave2 \
-master_slave_Dstrings
+master_slave_Dstrings derived probe broadcast scatterGather scatterReduce \
+alltoall newCommunicator typeVector communicatorCollection gatherv
 
 
 ################################################################################
@@ -24,6 +25,8 @@ run: $(SOURCES)
 	mpirun -np 5 hello_d && \
 	echo "running ring_d with 5 threads" && \
 	mpirun -np 5 ring_d  && \
+	echo "running master_slave2 with 5 threads" && \
+	mpirun -np 5 master_slave2 && \
 	echo "running connectivity_d with 25 threads" && \
 	mpirun -np 25 connectivity_d
 ################################################################################

@@ -183,14 +183,14 @@ extern (C)
 /*
  * Typedefs (aliases)
  */
-struct ompi_communicator_t;
-struct ompi_datatype_t;
+//struct ompi_communicator_t;
+//struct ompi_datatype_t;
 struct ompi_errhandler_t;
 struct ompi_filehandler_t;
 struct ompi_file_t;
 struct ompi_group_t;
 struct ompi_info_t;
-struct ompi_op_t;
+//struct ompi_op_t;
 struct ompi_request_t;
 struct ompi_win_t;
 
@@ -208,7 +208,7 @@ alias ompi_file_t *MPI_File;
 
 alias ompi_group_t *MPI_Group;
 alias ompi_info_t *MPI_Info;
-alias ompi_op_t *MPI_Op;
+alias void *MPI_Op;
 alias ompi_request_t *MPI_Request;
 alias ompi_status_public_t MPI_Status;
 alias ompi_win_t *MPI_Win;

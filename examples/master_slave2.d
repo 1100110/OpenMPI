@@ -62,6 +62,7 @@ int main(string[] args)
         //strings.  however, printf, sprintf and such do \0, and D
         //has shit support for that.
         //So instead of both, you only get one.
+        //strcat is easy way to get around that.
         strcat(buff.ptr, idstr.ptr);
 
         // Send the string back to the rank-0 process

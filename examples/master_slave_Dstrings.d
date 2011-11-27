@@ -1,11 +1,11 @@
-//Thanks to drey_
-
+//Courtesy of Wikipedia and "My Lawyer!!"
 
 import std.stdio;
 import std.c.stdio;
 import std.array;
 import std.algorithm;
 import std.string;
+import std.c.string;
 import mpi;
 
 int main(string[] args)
@@ -34,27 +34,31 @@ int main(string[] args)
         // This is the rank-0 copy of the process
         writefln("Master Processor %d Reporting!", rank);
         writefln("We have %d processors", numprocs);
+
         // Send each process a "Hello ... " string
         for(i = 1; i < numprocs; i++)
         {
-            auto str = format("Hello %s", i);
+            auto str = format("Hello %s! ", i);
             buff[lastBuffPos .. lastBuffPos + str.length] = str[];
-            lastBuffPos += str.length;
+//            lastBuffPos += str.length;
             MPI_Send(buff.ptr, buff.length, MPI_CHAR, i, 0, MPI_COMM_WORLD);
         }
+
         // Go into a blocking-receive for each servant process
         for(i = 1; i < numprocs; i++)
         {
             MPI_Recv(buff.ptr, buff.length, MPI_CHAR, i, 0, MPI_COMM_WORLD, &stat);
-            writefln("%s: %s\n", rank, buff);
+            writefln("%s: %s", rank, buff);
         }
     }
     else
     {
         // Go into a blocking-receive waiting
         MPI_Recv(buff.ptr, buff.length, MPI_CHAR, 0, 0, MPI_COMM_WORLD, &stat);
+        lastBuffPos = strlen(buff.ptr);  // calculate incoming string length
+
         // Append our identity onto the received string
-        auto str = format("Processor %d reporting for duty\n", rank);
+        auto str = format("Processor %d reporting for duty!", rank);
         buff[lastBuffPos .. lastBuffPos + str.length] = str[];
         lastBuffPos += str.length;
 
@@ -64,3 +68,8 @@ int main(string[] args)
 
    return MPI_Finalize();
 }
+/** @Istrystfrf About that code: you can replace that stack-allocation with
+ * heap-allocation, it doesn't matter. What matters is that you can't send data
+ * of one length and receive data of a different length. If you use concatenation
+ * then .length will change, and this is what you pass to MPI
+ */
